@@ -1,28 +1,42 @@
+`timescale 1ns / 1ps
 `include "memory.v"
-module test_memory;
 
-reg [31:0] address;
-wire [31:0] instruction;
+module memory_tb;
 
-memory memory1 (address, instruction);
+    reg clk;
+    reg MemRead;
+    reg MemWrite;
+    reg [31:0] address;
+    reg [31:0] write_data;
+    wire [31:0] read_data;
 
-initial begin
+    memory uut (
+        .clk(clk),
+        .MemRead(MemRead),
+        .MemWrite(MemWrite),
+        .address(address),
+        .write_data(write_data),
+        .read_data(read_data)
+    );
 
-    $dumpfile("memory_tb.vcd");
-    $dumpvars(0, test_memory);
+    initial begin
 
-    address = 4;
-    #10;
-    address = 8;
-    #10;
-    address = 12;
-    #10;
-    address = 15;
-    #5;
-end
+        $dumpfile("memory_tb.vcd");
+        $dumpvars(0, memory_tb);
 
-always @(address)
-    #1 $display("Time = %0d\taddress=%0d\tinstruction=%0d", $time,
-        address, instruction);
+        clk = 0;
+        MemRead = 0;
+        MemWrite = 0;
+        address = 0;
+        write_data = 0;
+
+        #10 MemWrite = 1; address = 32'h00000010; write_data = 32'hDEADBEEF; #10;
+        MemWrite = 0; MemRead = 1; address = 32'h00000010; #10;
+        MemRead = 0; address = 32'h00000020; #10;
+        MemWrite = 1; address = 32'h00000020; write_data = 32'hCAFEBABE; #10;
+        MemWrite = 0; MemRead = 1; address = 32'h00000020; #10;
+
+        $finish;
+    end
 
 endmodule
