@@ -1,10 +1,13 @@
 module mux (
-    input [31:0] a,
-    input [31:0] b,
+    input [31:0] A,
+    input [31:0] B,
     input sel,
-    output [31:0] y
+    output reg [31:0] Y
 );
-
-assign y = sel ? a : b; 
-
+    always @(*) begin
+        if (sel)
+            Y = A;
+        else
+            Y = B;
+    end
 endmodule
